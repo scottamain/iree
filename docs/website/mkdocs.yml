@@ -1,53 +1,42 @@
 site_name: IREE
 site_url: https://iree-org.github.io/iree/
+logo_link_name: OpenXLA Project
+repo_url: https://github.com/iree-org/iree
+repo_name: openxla/iree
+edit_uri: edit/main/docs/
+extra:
+  homepage: https://scottamain.github.io/community
 
 theme:
   name: material
+  logo: assets/images/openxla-logo-lockup-white.svg
+  logo_alt: OpenXLA
+  favicon: assets/images/favicon.ico
   icon:
     repo: fontawesome/brands/github
-    logo: iree/ghost
-  favicon: ghost.svg
-  custom_dir: overrides
-
-  features:
-    - navigation.instant # Faster loading
-
-    # TODO(scotttodd): join mkdocs-material insiders for this
-    - navigation.tracking # Update URL in address bar with the active anchor
-
-    # TODO(scotttodd): decide if we want this
-    #     these move sections from the left nav to tabs below the header
-    # - navigation.tabs
-    # - navigation.tabs.sticky  # insiders only
-
-    # TODO(scotttodd): remove this if the number of pages grows too much
-    - navigation.sections # Group sections without collapsible buttons
-
-    - navigation.top # Back to top button
-
-    - navigation.indexes # section names can link to index.md pages
-
+  font:
+    text: Noto
+    code: Noto Sans Mono
   palette:
-    # Light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
+    # Light mode (scheme overrides in openxla.css)
+    - scheme: default
       toggle:
-        icon: material/brightness-7
+        icon: material/brightness-6
         name: Switch to dark mode
-    # Dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: blue
-      accent: blue
+    # Dark mode (scheme overrides in openxla.css)
+    - scheme: slate
       toggle:
-        icon: material/brightness-4
+        icon: material/brightness-6
         name: Switch to light mode
-
-repo_url: https://github.com/iree-org/iree
-repo_name: iree-org/iree
-edit_uri: "" # Omit edit button (linking to GitHub) from each document
+  features:
+    - content.code.copy    # Button to copy code snippets
+    - content.action.edit  # Button to edit doc source
+    - navigation.tabs      # Header tabs for nav items
+    - navigation.top       # "Back to top" button
+    - navigation.instant   # Ajax-style dynamic loading
+    - navigation.tracking  # Update URL in address bar with the active anchor
+    - toc.follow           # Scroll the TOC panel to follow the reader
+  custom_dir: overrides
 
 extra:
   social:
@@ -63,9 +52,9 @@ extra:
   generator: false # TODO(scotttodd): join mkdocs-material insiders for this
 
 extra_css:
-  - assets/stylesheets/extra.css
+  - assets/stylesheets/openxla.css
 
-copyright: Copyright &copy; 2023 The IREE Authors
+copyright: Copyright &copy; 2023 The OpenXLA Authors
 
 markdown_extensions:
   - abbr
@@ -86,8 +75,9 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - tables
-  - toc:
-      permalink: true # TODO(scotttodd): icon: https://fonts.google.com/icons?selected=Material+Icons+Outlined:link
+  - toc:                    # Settings for table of contents
+      permalink: 'link'     # Use Material font's "link" icon; see openxla.css
+      toc_depth: 3          # Max heading level to include in TOC
 
 # Navigation with explicit ordering and nesting.
 # https://www.mkdocs.org/user-guide/configuration/#nav
