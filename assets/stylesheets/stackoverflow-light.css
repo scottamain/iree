@@ -1,0 +1,126 @@
+/*!
+  Theme: StackOverflow Light
+  Description: Light theme as used on stackoverflow.com
+  Author: stackoverflow.com
+  Maintainer: @Hirse
+  Website: https://github.com/StackExchange/Stacks
+  License: MIT
+  Updated: 2021-05-15
+
+  Updated for @stackoverflow/stacks v0.64.0
+  Code Blocks: /blob/v0.64.0/lib/css/components/_stacks-code-blocks.less
+  Colors: /blob/v0.64.0/lib/css/exports/_stacks-constants-colors.less
+*/
+
+[data-md-color-scheme="default"] .hljs {
+  /* var(--highlight-color) */
+  color: #2f3337;
+  /* var(--highlight-bg) */
+  background: #f6f6f6;
+}
+
+[data-md-color-scheme="default"] .hljs-subst {
+  /* var(--highlight-color) */
+  color: #2f3337;
+}
+
+[data-md-color-scheme="default"] .hljs-comment {
+  /* var(--highlight-comment) */
+  color: #656e77;
+}
+
+[data-md-color-scheme="default"] .hljs-keyword,
+[data-md-color-scheme="default"] .hljs-selector-tag,
+[data-md-color-scheme="default"] .hljs-meta .hljs-keyword,
+[data-md-color-scheme="default"] .hljs-doctag,
+[data-md-color-scheme="default"] .hljs-section {
+  /* var(--highlight-keyword) */
+  color: #015692;
+}
+
+[data-md-color-scheme="default"] .hljs-attr {
+  /* var(--highlight-attribute); */
+  color: #015692;
+}
+
+[data-md-color-scheme="default"] .hljs-attribute {
+  /* var(--highlight-symbol) */
+  color: #803378;
+}
+
+[data-md-color-scheme="default"] .hljs-name,
+[data-md-color-scheme="default"] .hljs-type,
+[data-md-color-scheme="default"] .hljs-number,
+[data-md-color-scheme="default"] .hljs-selector-id,
+[data-md-color-scheme="default"] .hljs-quote,
+[data-md-color-scheme="default"] .hljs-template-tag {
+  /* var(--highlight-namespace) */
+  color: #b75501;
+}
+
+[data-md-color-scheme="default"] .hljs-selector-class {
+  /* var(--highlight-keyword) */
+  color: #015692;
+}
+
+[data-md-color-scheme="default"] .hljs-string,
+[data-md-color-scheme="default"] .hljs-regexp,
+[data-md-color-scheme="default"] .hljs-symbol,
+[data-md-color-scheme="default"] .hljs-variable,
+[data-md-color-scheme="default"] .hljs-template-variable,
+[data-md-color-scheme="default"] .hljs-link,
+[data-md-color-scheme="default"] .hljs-selector-attr {
+  /* var(--highlight-variable) */
+  color: #54790d;
+}
+
+[data-md-color-scheme="default"] .hljs-meta,
+[data-md-color-scheme="default"] .hljs-selector-pseudo {
+  /* var(--highlight-keyword) */
+  color: #015692;
+}
+
+[data-md-color-scheme="default"] .hljs-built_in,
+[data-md-color-scheme="default"] .hljs-title,
+[data-md-color-scheme="default"] .hljs-literal {
+  /* var(--highlight-literal) */
+  color: #b75501;
+}
+
+[data-md-color-scheme="default"] .hljs-bullet,
+[data-md-color-scheme="default"] .hljs-code {
+  /* var(--highlight-punctuation) */
+  color: #535a60;
+}
+
+[data-md-color-scheme="default"] .hljs-meta .hljs-string {
+  /* var(--highlight-variable) */
+  color: #54790d;
+}
+
+[data-md-color-scheme="default"] .hljs-deletion {
+  /* var(--highlight-deletion) */
+  color: #c02d2e;
+}
+
+[data-md-color-scheme="default"] .hljs-addition {
+  /* var(--highlight-addition) */
+  color: #2f6f44;
+}
+
+[data-md-color-scheme="default"] .hljs-emphasis {
+  font-style: italic;
+}
+
+[data-md-color-scheme="default"] .hljs-strong {
+  font-weight: bold;
+}
+
+[data-md-color-scheme="default"] .hljs-formula,
+[data-md-color-scheme="default"] .hljs-operator,
+[data-md-color-scheme="default"] .hljs-params,
+[data-md-color-scheme="default"] .hljs-property,
+[data-md-color-scheme="default"] .hljs-punctuation,
+[data-md-color-scheme="default"] .hljs-tag {
+  /* purposely ignored */
+}
