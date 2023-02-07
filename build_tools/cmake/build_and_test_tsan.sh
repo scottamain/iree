@@ -48,14 +48,6 @@ CMAKE_ARGS=(
   # Don't build samples: they assume embedded-ELF so don't work with
   # IREE_BYTECODE_MODULE_FORCE_LLVM_SYSTEM_LINKER=ON.
   "-DIREE_BUILD_SAMPLES=OFF"
-
-  # Enable CUDA compiler and runtime builds unconditionally. Our CI images all
-  # have enough deps to at least build CUDA support and compile CUDA binaries.
-  # We will skip running GPU tests below but this still yields a bit more TSan
-  # coverage, at least in the compiler, and regarding the runtime it's at least
-  # checking that it builds with TSan.
-  "-DIREE_HAL_DRIVER_CUDA=ON"
-  "-DIREE_TARGET_BACKEND_CUDA=ON"
 )
 
 "${CMAKE_BIN}" -B "${BUILD_DIR}" "${CMAKE_ARGS[@]?}"
@@ -72,7 +64,7 @@ echo "Building sample deps"
 echo "------------------"
 "$CMAKE_BIN" --build "${BUILD_DIR?}" --target iree-sample-deps -- -k 0
 
-if (( IREE_READ_REMOTE_CCACHE == 1 )); then
+if (( IREE_USE_CCACHE == 1 )); then
   ccache --show-stats
 fi
 

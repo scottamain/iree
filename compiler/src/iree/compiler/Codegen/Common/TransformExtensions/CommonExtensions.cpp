@@ -65,21 +65,24 @@ void transform_dialect::ApplyPatternsOp::build(
 #define ADD_PATTERN(NAME, ATTR) \
   if (patterns.NAME)            \
     result.addAttribute(ApplyPatternsOp::ATTR(result.name), unitAttr);
+  ///
+  /// When touching something here, do not forget to update CommonExtensions.h.
+  ///
   ADD_PATTERN(additionalIreePatterns, getAdditionalIreePatternsAttrName)
   ADD_PATTERN(bubbleCollapseExpand, getBubbleCollapseExpandAttrName)
   ADD_PATTERN(canonicalization, getCanonicalizationAttrName)
   ADD_PATTERN(eraseUnnecessaryTensorOperands,
               getEraseUnnecessaryTensorOperandsAttrName)
-  ADD_PATTERN(foldMemrefAliases, getFoldMemrefAliasesAttrName)
-  ADD_PATTERN(foldReassociativeReshapes, getFoldReassociativeReshapesAttrName)
-  ADD_PATTERN(lowerTransferOpPermutations,
-              getLowerTransferOpPermutationsAttrName)
-  ADD_PATTERN(promoteForeachThreadCaptureToShared,
-              getPromoteForeachThreadCaptureToSharedAttrName)
-  ADD_PATTERN(rankReducingLinalg, getRankReducingLinalgAttrName)
-  ADD_PATTERN(rankReducingVector, getRankReducingVectorAttrName)
   ADD_PATTERN(expandMemrefStridedMetadata,
               getExpandMemrefStridedMetadataAttrName)
+  ADD_PATTERN(foldMemrefAliases, getFoldMemrefAliasesAttrName)
+  ADD_PATTERN(foldReassociativeReshapes, getFoldReassociativeReshapesAttrName)
+  ADD_PATTERN(foldTensorEmptyExtract, getFoldTensorEmptyExtractAttrName)
+  ADD_PATTERN(lowerTransferOpPermutations,
+              getLowerTransferOpPermutationsAttrName)
+  ADD_PATTERN(rankReducingLinalg, getRankReducingLinalgAttrName)
+  ADD_PATTERN(rankReducingVector, getRankReducingVectorAttrName)
+  ADD_PATTERN(rewritePackOps, getRewritePackOpsAttrName)
   ADD_PATTERN(swapPaddingElideConditional,
               getSwapPaddingElideConditionalAttrName)
   ADD_PATTERN(swappingPatterns, getSwappingPatternsAttrName)
@@ -109,59 +112,47 @@ struct GenerateToConstant : public OpRewritePattern<tensor::GenerateOp> {
   }
 };
 
-struct PromoteCaptureToSharedOut
+/// Fold tensor.empty used by extract_slice if this the only use of
+/// extract_slice and the result is static.
+struct FoldTensorEmptyExtract
     : public OpRewritePattern<tensor::ExtractSliceOp> {
   using OpRewritePattern<tensor::ExtractSliceOp>::OpRewritePattern;
+  LogicalResult matchAndRewrite(tensor::ExtractSliceOp extractOp,
+                                PatternRewriter &rewriter) const final {
+    auto tensorEmpty = extractOp.getSource().getDefiningOp<tensor::EmptyOp>();
+    if (!tensorEmpty || !extractOp.getType().hasStaticShape() ||
+        !tensorEmpty->hasOneUse())
+      return failure();
+    rewriter.replaceOpWithNewOp<tensor::EmptyOp>(
+        extractOp, extractOp.getType().getShape(),
+        extractOp.getType().getElementType());
+    return success();
+  }
+};
 
-  LogicalResult matchAndRewrite(tensor::ExtractSliceOp extractSliceOp,
-                                PatternRewriter &rewriter) const override {
-    scf::ForeachThreadOp foreachThreadOp =
-        extractSliceOp->getParentOfType<scf::ForeachThreadOp>();
+/// Trivial 1-1 pattern to retire once IREE adopts tensor.pack.
+struct TensorPackToLinalgExt : public OpRewritePattern<tensor::PackOp> {
+  using OpRewritePattern<tensor::PackOp>::OpRewritePattern;
+  LogicalResult matchAndRewrite(tensor::PackOp packOp,
+                                PatternRewriter &rewriter) const final {
+    rewriter.replaceOpWithNewOp<LinalgExt::PackOp>(
+        packOp, packOp.getSource(), packOp.getDest(), packOp.getInnerDimsPos(),
+        packOp.getMixedTiles(), packOp.getPaddingValue(),
+        packOp.getOuterDimsPerm());
+    return success();
+  }
+};
 
-    while (foreachThreadOp) {
-      // Check if the extract_slice source is a shared output.
-      auto outputIt =
-          llvm::find(foreachThreadOp.getOutputs(), extractSliceOp.getSource());
-      if (outputIt == foreachThreadOp.getOutputs().end()) {
-        foreachThreadOp =
-            foreachThreadOp->getParentOfType<scf::ForeachThreadOp>();
-        continue;
-      }
-
-      // Get the corresponding bbArg of the loop body.
-      BlockArgument bbArg =
-          foreachThreadOp.getOutputBlockArguments()[std::distance(
-              foreachThreadOp.getOutputs().begin(), outputIt)];
-
-      // Check if the extract_slice has a matching parallel_insert_slice (i.e.,
-      // same source/target, offsets, sizes and strides).
-      auto isMatchingParallelInsertSlice = [&](Operation &op) {
-        auto insertSlice = dyn_cast<tensor::ParallelInsertSliceOp>(&op);
-        if (!insertSlice) return false;
-        if (insertSlice.getDest() != bbArg) return false;
-        return llvm::equal(insertSlice.getMixedOffsets(),
-                           extractSliceOp.getMixedOffsets()) &&
-               llvm::equal(insertSlice.getMixedSizes(),
-                           extractSliceOp.getMixedSizes()) &&
-               llvm::equal(insertSlice.getMixedStrides(),
-                           extractSliceOp.getMixedStrides());
-      };
-      if (llvm::none_of(foreachThreadOp.getTerminator().getYieldingOps(),
-                        isMatchingParallelInsertSlice)) {
-        foreachThreadOp =
-            foreachThreadOp->getParentOfType<scf::ForeachThreadOp>();
-        continue;
-      }
-
-      // Promote extract_slice source to bbArg.
-      rewriter.updateRootInPlace(extractSliceOp, [&]() {
-        extractSliceOp.getSourceMutable().assign(bbArg);
-      });
-
-      return success();
-    }
-
-    return failure();
+/// Trivial 1-1 pattern to retire once IREE adopts tensor.unpack.
+struct TensorUnPackToLinalgExt : public OpRewritePattern<tensor::UnPackOp> {
+  using OpRewritePattern<tensor::UnPackOp>::OpRewritePattern;
+  LogicalResult matchAndRewrite(tensor::UnPackOp unPackOp,
+                                PatternRewriter &rewriter) const final {
+    rewriter.replaceOpWithNewOp<LinalgExt::UnPackOp>(
+        unPackOp, unPackOp.getSource(), unPackOp.getDest(),
+        unPackOp.getInnerDimsPos(), unPackOp.getMixedTiles(),
+        unPackOp.getOuterDimsPerm());
+    return success();
   }
 };
 }  // namespace
@@ -175,9 +166,8 @@ static void addFoldMemrefAliasPatterns(RewritePatternSet &patterns) {
   memref::populateFoldMemRefAliasOpPatterns(patterns);
 }
 
-static void addForeachThreadCapturePromotionPatterns(
-    RewritePatternSet &patterns) {
-  patterns.add<PromoteCaptureToSharedOut>(patterns.getContext());
+static void addFoldTensorEmptyExtract(RewritePatternSet &patterns) {
+  patterns.add<FoldTensorEmptyExtract>(patterns.getContext());
 }
 
 static void addReassociativeReshapePatterns(RewritePatternSet &patterns) {
@@ -196,6 +186,11 @@ static void addRankReducingLinalgPatterns(RewritePatternSet &patterns) {
 
 static void addRankReducingVectorPatterns(RewritePatternSet &patterns) {
   vector::populateCastAwayVectorLeadingOneDimPatterns(patterns);
+}
+
+static void addRewritePackOpsPatterns(RewritePatternSet &patterns) {
+  patterns.add<TensorPackToLinalgExt, TensorUnPackToLinalgExt>(
+      patterns.getContext());
 }
 
 static void addSwappingPatterns(RewritePatternSet &patterns,
@@ -236,14 +231,14 @@ DiagnosedSilenceableFailure transform_dialect::ApplyPatternsOp::applyToOne(
     addLowerTransferOpPermutationsPatterns(patterns);
   if (getEraseUnnecessaryTensorOperands())
     addEraseUnnecessaryTensorOperandsPatterns(patterns);
-  if (getFoldMemrefAliases()) addFoldMemrefAliasPatterns(patterns);
-  if (getFoldReassociativeReshapes()) addReassociativeReshapePatterns(patterns);
-  if (getPromoteForeachThreadCaptureToShared())
-    addForeachThreadCapturePromotionPatterns(patterns);
-  if (getRankReducingLinalg()) addRankReducingLinalgPatterns(patterns);
-  if (getRankReducingVector()) addRankReducingVectorPatterns(patterns);
   if (getExpandMemrefStridedMetadata())
     memref::populateExpandStridedMetadataPatterns(patterns);
+  if (getFoldMemrefAliases()) addFoldMemrefAliasPatterns(patterns);
+  if (getFoldReassociativeReshapes()) addReassociativeReshapePatterns(patterns);
+  if (getFoldTensorEmptyExtract()) addFoldTensorEmptyExtract(patterns);
+  if (getRankReducingLinalg()) addRankReducingLinalgPatterns(patterns);
+  if (getRankReducingVector()) addRankReducingVectorPatterns(patterns);
+  if (getRewritePackOps()) addRewritePackOpsPatterns(patterns);
   if (getSwappingPatterns())
     addSwappingPatterns(patterns, getSwapPaddingElideConditional());
   if (getAdditionalIreePatterns()) addAdditionalIreePatterns(patterns);
@@ -273,6 +268,76 @@ void transform_dialect::ApplyPatternsOp::getEffects(
   transform::onlyReadsHandle(getTarget(), effects);
   transform::producesHandle(getResult(), effects);
   transform::modifiesPayload(effects);
+}
+
+//===----------------------------------------------------------------------===//
+// ShareForeachThreadOperandsOp
+//===----------------------------------------------------------------------===//
+
+DiagnosedSilenceableFailure
+transform_dialect::ShareForeachThreadOperandsOp::applyToOne(
+    scf::ForeachThreadOp foreachThreadOp,
+    transform::ApplyToEachResultList &results,
+    transform::TransformState &state) {
+  IRRewriter rewriter(getContext());
+  SmallVector<int64_t> shareOperands(getShareOperands());
+  // Empty case: consider all operands need to be shared.
+  if (shareOperands.empty()) {
+    shareOperands = llvm::to_vector(
+        llvm::seq<int64_t>(0, foreachThreadOp.getOutputs().size()));
+  }
+  for (int64_t outputIdx : getShareOperands()) {
+    if (outputIdx < 0 || outputIdx >= foreachThreadOp.getOutputs().size())
+      return mlir::emitDefiniteFailure(foreachThreadOp, "operand idx overflow");
+    Value toShare = foreachThreadOp.getOutputs()[outputIdx];
+    if (std::distance(toShare.getUses().begin(), toShare.getUses().end()) !=
+        2) {
+      /*return mlir::emitSilenceableFailure(
+          foreachThreadOp,
+          "operand to share must have exactly 2 uses, the foreach_thread op "
+          "and an extract_slice op.");*/
+      continue;
+    }
+    tensor::ExtractSliceOp extractSliceOp;
+    for (Operation *user : toShare.getUsers()) {
+      extractSliceOp = dyn_cast<tensor::ExtractSliceOp>(user);
+      if (extractSliceOp) break;
+    }
+    if (!extractSliceOp) {
+      /*return mlir::emitSilenceableFailure(
+        foreachThreadOp,
+        "shared operands use must be extractSliceOp.");*/
+      continue;
+    }
+    // Get the corresponding bbArg.
+    BlockArgument bbArg = foreachThreadOp.getOutputBlockArguments()[outputIdx];
+
+    // Check if the extract_slice has a matching parallel_insert_slice
+    // (i.e., same source/target, offsets, sizes and strides).
+    auto isMatchingParallelInsertSlice = [&](Operation &op) {
+      auto insertSlice = dyn_cast<tensor::ParallelInsertSliceOp>(&op);
+      if (!insertSlice) return false;
+      if (insertSlice.getDest() != bbArg) return false;
+      return llvm::equal(insertSlice.getMixedOffsets(),
+                         extractSliceOp.getMixedOffsets()) &&
+             llvm::equal(insertSlice.getMixedSizes(),
+                         extractSliceOp.getMixedSizes()) &&
+             llvm::equal(insertSlice.getMixedStrides(),
+                         extractSliceOp.getMixedStrides());
+    };
+    if (llvm::none_of(foreachThreadOp.getTerminator().getYieldingOps(),
+                      isMatchingParallelInsertSlice)) {
+      continue;
+    }
+
+    // Promote extract_slice source to bbArg.
+    rewriter.updateRootInPlace(extractSliceOp, [&]() {
+      extractSliceOp.getSourceMutable().assign(bbArg);
+    });
+  }
+
+  results.push_back(foreachThreadOp);
+  return DiagnosedSilenceableFailure::success();
 }
 
 //===---------------------------------------------------------------------===//
@@ -408,7 +473,7 @@ LogicalResult rewriteForeachThreadToWorkgroup(
   }
 
   // Step 4. Create the workgroup id and count ops.
-  BlockAndValueMapping bvm;
+  IRMapping bvm;
   SmallVector<Value> workgroupIdOps, workgroupCountOps;
   for (Attribute attr : blockMapping) {
     auto idx =
@@ -829,10 +894,11 @@ static LogicalResult cpuComprehensiveBufferizeCopyFn(OpBuilder &builder,
 static FailureOr<Value> gpuComprehensiveBufferizeAllocationFn(
     OpBuilder &builder, Location loc, MemRefType memRefType,
     ValueRange dynamicSizes, unsigned alignment) {
-  // TODO: use gpu::GPUDialect::getWorkgroupAddressSpace() but this requires
-  // moving out of CommonExtensions.
-  MemRefType allocType = MemRefType::get(memRefType.getShape(),
-                                         memRefType.getElementType(), {}, 3);
+  auto addressSpaceAttr = gpu::AddressSpaceAttr::get(
+      builder.getContext(), gpu::GPUDialect::getWorkgroupAddressSpace());
+  MemRefType allocType =
+      MemRefType::get(memRefType.getShape(), memRefType.getElementType(),
+                      AffineMap(), addressSpaceAttr);
   return builder
       .create<memref::AllocOp>(loc, allocType, dynamicSizes,
                                builder.getI64IntegerAttr(alignment))
@@ -1174,6 +1240,7 @@ void transform_dialect::ApplyBufferOptimizationsOp::getEffects(
 void transform_dialect::ApplyBufferOptimizationsOp::build(
     OpBuilder &builder, OperationState &result, Value target) {
   result.addOperands(target);
+  result.addTypes({pdl::OperationType::get(target.getContext())});
 }
 
 #define GET_OP_CLASSES

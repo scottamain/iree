@@ -146,6 +146,12 @@ static IREE::Flow::DispatchTensorStoreOp walkUseToGetDispatchTensorStoreOp(
     if (!value) return nullptr;
     traversedUses.push_back(&use);
   }
+  // If the value has a use which is a store, then use that directly.
+  for (Operation *user : value.getUsers()) {
+    if (auto storeOp = dyn_cast<IREE::Flow::DispatchTensorStoreOp>(user)) {
+      return storeOp;
+    }
+  }
   return nullptr;
 }
 
@@ -158,10 +164,8 @@ static LogicalResult replaceDestinationBuffer(OpResult resultValue,
                                               Value destinationValue) {
   Operation *op = resultValue.getOwner();
   return TypeSwitch<Operation *, LogicalResult>(op)
-      .Case<linalg::LinalgOp, IREE::LinalgExt::LinalgExtOp>([&](auto linalgOp) {
-        unsigned resultNumber = resultValue.getResultNumber();
-        cast<DestinationStyleOpInterface>(linalgOp.getOperation())
-            .setDpsInitOperand(resultNumber, destinationValue);
+      .Case<DestinationStyleOpInterface>([&](auto op) {
+        op.setDpsInitOperand(resultValue.getResultNumber(), destinationValue);
         return success();
       })
       .Case<tensor::EmptyOp>([&](auto emptyTensorOp) {
@@ -206,10 +210,10 @@ static LogicalResult modifyResultToUseStoreBuffer(
     Operation *op = it->getOwner();
     resultBuffer =
         TypeSwitch<Operation *, Value>(op)
-            .Case<scf::IfOp, scf::ForOp, linalg::LinalgOp,
-                  IREE::LinalgExt::LinalgExtOp, tensor::InsertSliceOp,
-                  vector::TransferWriteOp>(
-                [&](auto caseOp) { return resultBuffer; })
+            .Case<DestinationStyleOpInterface>(
+                [&](auto) { return resultBuffer; })
+            .Case<scf::IfOp, scf::ForOp, tensor::InsertSliceOp,
+                  vector::TransferWriteOp>([&](auto) { return resultBuffer; })
             .Case<tensor::InsertSliceOp>([&](auto insertSliceOp) -> Value {
               if (it->get() == insertSliceOp.getDest()) {
                 return resultBuffer;

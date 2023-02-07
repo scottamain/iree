@@ -45,13 +45,13 @@ hal.executable @matmul_f16_32x32x32 {
         %c32 = arith.constant 32 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<32x32xf16>
+        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<32x32xf16>
         memref.assume_alignment %0, 64 : memref<32x32xf16>
-        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<32x32xf16>
+        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<32x32xf16>
         memref.assume_alignment %1, 64 : memref<32x32xf16>
-        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x32xf16>
+        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x32xf16>
         memref.assume_alignment %2, 64 : memref<32x32xf16>
-        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) offset(%c0) alignment(64) : memref<32x32xf16>
+        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) alignment(64) offset(%c0) : memref<32x32xf16>
         memref.assume_alignment %3, 64 : memref<32x32xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
@@ -152,10 +152,10 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
         %c512 = arith.constant 512 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %span0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<128x32x64xf16>
-        %span1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<32x64x512xf16>
-        %span2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x128x512xf16>
-        %span3 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x128x512xf16>
+        %span0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<128x32x64xf16>
+        %span1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<32x64x512xf16>
+        %span2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x128x512xf16>
+        %span3 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x128x512xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -206,8 +206,8 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
 
 // CHECK-LABEL: func.func @generic_batch_matmul_f16_32x128x512x64()
 
-//      CHECK: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, 3>
-//      CHECK: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, 3>
+//      CHECK: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, #gpu.address_space<workgroup>>
+//      CHECK: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, #gpu.address_space<workgroup>>
 
 //      CHECK: linalg.fill
 // CHECK-SAME:   __internal_linalg_transform__ = "workgroup_memory"
@@ -228,9 +228,9 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
 
 // PROMOTEC-LABEL: func.func @generic_batch_matmul_f16_32x128x512x64()
 
-//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, 3>
-//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, 3>
-//      PROMOTEC: %[[C_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, 3>
+//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, #gpu.address_space<workgroup>>
+//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, #gpu.address_space<workgroup>>
+//      PROMOTEC: %[[C_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, #gpu.address_space<workgroup>>
 
 //      PROMOTEC: linalg.fill
 // PROMOTEC-SAME:   __internal_linalg_transform__ = "workgroup_memory"
@@ -302,10 +302,10 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
         %c512 = arith.constant 512 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %span0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<128x32x64xf16>
-        %span1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<32x64x512xf16>
-        %span2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x128x512xf16>
-        %span3 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x128x512xf16>
+        %span0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<128x32x64xf16>
+        %span1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<32x64x512xf16>
+        %span2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x128x512xf16>
+        %span3 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x128x512xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -355,8 +355,8 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
 
 // PROMOTEC-LABEL: func.func @generic_batch_matmul_f16_32x128x512x64()
 
-//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, 3>
-//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, 3>
+//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, #gpu.address_space<workgroup>>
+//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, #gpu.address_space<workgroup>>
 
 //      PROMOTEC: linalg.fill
 // PROMOTEC-SAME:   __internal_linalg_transform__ = "workgroup_memory"
@@ -421,9 +421,9 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
         %c512 = arith.constant 512 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<128x32x64xf16>
-        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<32x64x512xf16>
-        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<32x128x512xf16>
+        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<128x32x64xf16>
+        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<32x64x512xf16>
+        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<32x128x512xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -465,8 +465,8 @@ hal.executable @generic_batch_matmul_f16_32x128x512x64 {
 // PROMOTEC-LABEL: func.func @generic_batch_matmul_f16_32x128x512x64()
 
 //  PROMOTEC-NOT: memref.alloc()
-//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, 3>
-//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, 3>
+//      PROMOTEC: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x32xf16, #gpu.address_space<workgroup>>
+//      PROMOTEC: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<32x1x32xf16, #gpu.address_space<workgroup>>
 //  PROMOTEC-NOT: memref.alloc()
 
 //      PROMOTEC: %[[SPAN2:.+]] = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer)
@@ -531,9 +531,9 @@ hal.executable @batch_matmul_f16_1x64x128x512 {
         %c4096 = arith.constant 4096 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<1x4096x512xf16>
-        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<1x512x4096xf16>
-        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<1x4096x4096xf32>
+        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<1x4096x512xf16>
+        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<1x512x4096xf16>
+        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<1x4096x4096xf32>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -547,15 +547,15 @@ hal.executable @batch_matmul_f16_1x64x128x512 {
             %subview = memref.subview %2[0, %arg0, %arg1] [1, 64, 128] [1, 1, 1] : memref<1x4096x4096xf32> to memref<1x64x128xf32, strided<[16777216, 4096, 1], offset: ?>>
             %subview_0 = memref.subview %0[0, %arg0, 0] [1, 64, 512] [1, 1, 1] : memref<1x4096x512xf16> to memref<1x64x512xf16, strided<[2097152, 512, 1], offset: ?>>
             %subview_1 = memref.subview %1[0, 0, %arg1] [1, 512, 128] [1, 1, 1] : memref<1x512x4096xf16> to memref<1x512x128xf16, strided<[2097152, 4096, 1], offset: ?>>
-            %alloc = memref.alloc() {alignment = 128 : i64} : memref<1x64x128xf16, 3>
-            linalg.fill ins(%cst : f16) outs(%alloc : memref<1x64x128xf16, 3>)
+            %alloc = memref.alloc() {alignment = 128 : i64} : memref<1x64x128xf16, #gpu.address_space<workgroup>>
+            linalg.fill ins(%cst : f16) outs(%alloc : memref<1x64x128xf16, #gpu.address_space<workgroup>>)
             linalg.batch_matmul {lowering_config = #config}
               ins(%subview_0, %subview_1 : memref<1x64x512xf16, strided<[2097152, 512, 1], offset: ?>>, memref<1x512x128xf16, strided<[2097152, 4096, 1], offset: ?>>)
-              outs(%alloc : memref<1x64x128xf16, 3>)
+              outs(%alloc : memref<1x64x128xf16, #gpu.address_space<workgroup>>)
             linalg.generic {
                 indexing_maps = [affine_map<(d0, d1, d2) -> (d0, d1, d2)>, affine_map<(d0, d1, d2) -> (d0, d1, d2)>],
                 iterator_types = ["parallel", "parallel", "parallel"]}
-              ins(%alloc : memref<1x64x128xf16, 3>)
+              ins(%alloc : memref<1x64x128xf16, #gpu.address_space<workgroup>>)
               outs(%subview : memref<1x64x128xf32, strided<[16777216, 4096, 1], offset: ?>>) {
             ^bb0(%in: f16, %out: f32):
               %7 = arith.extf %in : f16 to f32
@@ -571,9 +571,9 @@ hal.executable @batch_matmul_f16_1x64x128x512 {
 
 // PROMOTEC-LABEL: func.func @batch_matmul_f16_1x64x128x512()
 
-//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<1x64x32xf16, 3>
-//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x128xf16, 3>
-//  PROMOTEC-DAG: %[[C_ALLOC:.+]] = memref.alloc() {alignment = 128 : i64} : memref<1x64x128xf16, 3>
+//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<1x64x32xf16, #gpu.address_space<workgroup>>
+//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<1x32x128xf16, #gpu.address_space<workgroup>>
+//  PROMOTEC-DAG: %[[C_ALLOC:.+]] = memref.alloc() {alignment = 128 : i64} : memref<1x64x128xf16, #gpu.address_space<workgroup>>
 
 //      PROMOTEC: linalg.fill
 // PROMOTEC-SAME:   __internal_linalg_transform__ = "workgroup_memory"
@@ -640,10 +640,10 @@ hal.executable @matmul_f16_f512x4096x64 {
         %c4096 = arith.constant 4096 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<512x64xf16>
-        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<64x4096xf16>
-        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<4096xf16>
-        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) offset(%c0) alignment(64) : memref<512x4096xf16>
+        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<512x64xf16>
+        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<64x4096xf16>
+        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<4096xf16>
+        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) alignment(64) offset(%c0) : memref<512x4096xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -681,8 +681,8 @@ hal.executable @matmul_f16_f512x4096x64 {
 // PROMOTEC-LABEL: func.func @matmul_f16_f512x4096x64()
 
 //  PROMOTEC-NOT: memref.alloc()
-//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<64x32xf16, 3>
-//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<32x128xf16, 3>
+//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<64x32xf16, #gpu.address_space<workgroup>>
+//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<32x128xf16, #gpu.address_space<workgroup>>
 //  PROMOTEC-NOT: memref.alloc()
 
 //      PROMOTEC: %[[SPAN2:.+]] = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer)
@@ -757,10 +757,10 @@ hal.executable @matmul_f16_f512x4096x64 {
         %c4096 = arith.constant 4096 : index
         %c0 = arith.constant 0 : index
         %cst = arith.constant 0.000000e+00 : f16
-        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) offset(%c0) alignment(64) : memref<512x64xf16>
-        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) offset(%c0) alignment(64) : memref<64x4096xf16>
-        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) offset(%c0) alignment(64) : memref<512xf16>
-        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) offset(%c0) alignment(64) : memref<512x4096xf16>
+        %0 = hal.interface.binding.subspan set(0) binding(0) type(storage_buffer) alignment(64) offset(%c0) : memref<512x64xf16>
+        %1 = hal.interface.binding.subspan set(0) binding(1) type(storage_buffer) alignment(64) offset(%c0) : memref<64x4096xf16>
+        %2 = hal.interface.binding.subspan set(0) binding(2) type(storage_buffer) alignment(64) offset(%c0) : memref<512xf16>
+        %3 = hal.interface.binding.subspan set(0) binding(3) type(storage_buffer) alignment(64) offset(%c0) : memref<512x4096xf16>
         %workgroup_id_x = hal.interface.workgroup.id[0] : index
         %workgroup_count_x = hal.interface.workgroup.count[0] : index
         %workgroup_id_y = hal.interface.workgroup.id[1] : index
@@ -798,9 +798,9 @@ hal.executable @matmul_f16_f512x4096x64 {
 
 // PROMOTEC-LABEL: func.func @matmul_f16_f512x4096x64()
 
-//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<64x32xf16, 3>
-//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<32x128xf16, 3>
-//  PROMOTEC-DAG: %[[C_ALLOC:.+]] = memref.alloc() : memref<64x128xf16, 3>
+//  PROMOTEC-DAG: %[[LHS_ALLOC:.+]] = memref.alloc() : memref<64x32xf16, #gpu.address_space<workgroup>>
+//  PROMOTEC-DAG: %[[RHS_ALLOC:.+]] = memref.alloc() : memref<32x128xf16, #gpu.address_space<workgroup>>
+//  PROMOTEC-DAG: %[[C_ALLOC:.+]] = memref.alloc() : memref<64x128xf16, #gpu.address_space<workgroup>>
 
 //      PROMOTEC: linalg.fill
 // PROMOTEC-SAME:   __internal_linalg_transform__ = "workgroup_memory"

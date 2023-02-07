@@ -37,12 +37,6 @@ CMAKE_ARGS=(
   "-DIREE_BUILD_MICROBENCHMARKS=ON"
 
   "-DIREE_ENABLE_ASSERTIONS=${IREE_ENABLE_ASSERTIONS}"
-
-  # Enable CUDA compiler and runtime builds unconditionally. Our CI images all
-  # have enough deps to at least build CUDA support and compile CUDA binaries
-  # (but not necessarily test on real hardware).
-  "-DIREE_HAL_DRIVER_CUDA=ON"
-  "-DIREE_TARGET_BACKEND_CUDA=ON"
 )
 
 echo "Configuring CMake"
@@ -64,7 +58,7 @@ echo "Building microbenchmark suites"
 echo "------------------"
 "${CMAKE_BIN?}" --build "${BUILD_DIR?}" --target iree-microbenchmark-suites -- -k 0
 
-if (( IREE_READ_REMOTE_CCACHE == 1 )); then
+if (( IREE_USE_CCACHE == 1 )); then
   ccache --show-stats
 fi
 

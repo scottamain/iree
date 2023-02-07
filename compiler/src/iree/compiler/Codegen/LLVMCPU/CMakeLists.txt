@@ -14,12 +14,13 @@ iree_cc_library(
   NAME
     LLVMCPU
   HDRS
+    "DispatchABI.h"
     "KernelDispatch.h"
     "TargetMLTransformInfo.h"
   SRCS
     "ConvertToLLVM.cpp"
+    "DispatchABI.cpp"
     "KernelDispatch.cpp"
-    "LLVMCPUAArch64VectorLowering.cpp"
     "LLVMCPUAssignConstantOrdinals.cpp"
     "LLVMCPUAssignImportOrdinals.cpp"
     "LLVMCPUCheckIRBeforeLLVMConversion.cpp"
@@ -27,6 +28,7 @@ iree_cc_library(
     "LLVMCPULinkExecutables.cpp"
     "LLVMCPULowerExecutableTarget.cpp"
     "LLVMCPUMaterializeEncodingPass.cpp"
+    "LLVMCPUMmt4dVectorLowering.cpp"
     "LLVMCPUSynchronizeSymbolVisibility.cpp"
     "LLVMCPUUnfuseFMAOps.cpp"
     "Passes.cpp"
@@ -38,6 +40,7 @@ iree_cc_library(
     IREELinalgExtPasses
     IREELinalgTransformDialect
     IREELinalgTransformDialectPasses
+    LLVMBinaryFormat
     LLVMSupport
     MLIRAffineDialect
     MLIRAffineToStandard

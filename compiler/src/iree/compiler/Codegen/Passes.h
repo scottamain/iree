@@ -100,6 +100,9 @@ std::unique_ptr<OperationPass<ModuleOp>> createIREEComprehensiveBufferizePass(
         std::nullopt,
     Optional<BufferizationOptions::MemCpyFn> memCpyFn = std::nullopt);
 
+std::unique_ptr<OperationPass<func::FuncOp>>
+createHoistStaticallyBoundAllocationsPass();
+
 /// Creates a pass to remove single iteration distributed loops.
 std::unique_ptr<OperationPass<func::FuncOp>>
 createRemoveSingleIterationLoopPass();
@@ -114,6 +117,11 @@ createConvertToDestinationPassingStylePass(
 /// Creates a pass to vectorize a very specific form of tensor.pad ops with
 /// control flows.
 std::unique_ptr<OperationPass<func::FuncOp>> createVectorizePadPass();
+
+/// Creates a pass to vectorize tensor.pack and tensor.unpack ops. The pass does
+/// tiling, generalization, and kicking in the generic vectorizer. See
+/// implementation for more details.
+std::unique_ptr<OperationPass<func::FuncOp>> createVectorizePackUnPackOpsPass();
 
 /// Pass to optimize vector transfer_read and transfer_write.
 std::unique_ptr<OperationPass<func::FuncOp>> createOptimizeVectorTransferPass(
@@ -275,7 +283,7 @@ std::unique_ptr<OperationPass<ModuleOp>>
 createLLVMCPUSynchronizeSymbolVisibilityPass();
 
 std::unique_ptr<OperationPass<func::FuncOp>>
-createLLVMCPUAArch64VectorLoweringPass();
+createLLVMCPUMmt4dVectorLoweringPass();
 
 /// Replaces llvm.intr.fma with its unfused mul and add ops.
 std::unique_ptr<OperationPass<func::FuncOp>> createLLVMCPUUnfuseFMAOpsPass();
@@ -351,7 +359,7 @@ void addTransformDialectPasses(OpPassManager &passManager);
 
 /// Populates the passes needed to multi level tile, fuse and vectorize
 /// lowering of linalg ops on tensors to vectors operations.
-void addCPUAArchDoubleTilingExpertPassPipeline(OpPassManager &passManager);
+void addMmt4dTilingExpertPassPipeline(OpPassManager &passManager);
 
 //----------------------------------------------------------------------------//
 // LLVMCPU Pass Pipelines for lowering to LLVM dialect.

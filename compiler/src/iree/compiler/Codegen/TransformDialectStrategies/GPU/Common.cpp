@@ -153,13 +153,13 @@ Value mlir::iree_compiler::gpu::buildDistributeVectors(ImplicitLocOpBuilder &b,
   ApplyPatternsOpPatterns patterns;
   patterns.foldMemrefAliases = true;
   patterns.rankReducingVector = true;
-  patterns.rankReducingLinalg = true;
   funcH = b.create<ApplyPatternsOp>(funcH, patterns);
   Value ifH = b.create<MatchOp>(funcH, scf::IfOp::getOperationName());
   // Locally suppress failures for this op only because it doesn't cover the
   // `threadIdx.x == 0 && threadIdx.y == 0` case at the moment.
   auto sequence = b.create<SequenceOp>(
-      TypeRange(), transform::FailurePropagationMode::Suppress, variantH);
+      TypeRange(), transform::FailurePropagationMode::Suppress, variantH,
+      /*extraBindings=*/ValueRange());
   {
     OpBuilder::InsertionGuard guard(b);
     b.createBlock(&sequence.getBody(), sequence.getBody().begin(),
@@ -261,6 +261,12 @@ std::pair<Value, Value> mlir::iree_compiler::gpu::buildCommonTrailingStrategy(
     const AbstractReductionStrategy &strategy) {
   // Step N-1. Bufferize and drop HAL descriptor from memref ops.
   Value funcH = b.create<MatchOp>(variantH, func::FuncOp::getOperationName());
+
+  // Fold tensor.empty to avoid large allocations.
+  ApplyPatternsOpPatterns patterns;
+  patterns.foldTensorEmptyExtract = true;
+  funcH = b.create<ApplyPatternsOp>(funcH, patterns);
+
   funcH = iree_compiler::buildVectorize(b, funcH);
   variantH = iree_compiler::buildBufferize(b, variantH, /*targetGpu=*/true);
 
@@ -325,11 +331,11 @@ static ReductionConfig getReductionConfig(
   // Since this mode does not coalesce reads, perf will suffer
   // catastrophically on larger runtime reduction.
   // TODO: explicit hint from above that we really want to do that.
-  int64_t reductionDimensionSize = captures.reductionOpSizes.back();
-  bool isDynamicReduction = ShapedType::isDynamic(reductionDimensionSize);
+  int64_t redSize = captures.reductionOpSizes.back();
+  bool isDynamicReduction = ShapedType::isDynamic(redSize);
   // Otherwise, still only support the small cases for now and fall back to
   // other strategies otherwise.
-  bool isSmallReduction = (reductionDimensionSize < 2 * kCudaWarpSize);
+  bool isSmallReduction = (redSize < 2 * kCudaWarpSize);
   if (!isDynamicReduction && isSmallReduction) {
     int64_t maxNumThreads = 4 * kCudaWarpSize;
     return ReductionConfig{maxNumThreads, 0, ReductionStrategy::Small};
@@ -343,9 +349,9 @@ static ReductionConfig getReductionConfig(
   int64_t maxNumThreads = 8 * kCudaWarpSize;
   // No adjustments in the dynamic case, we need extra information to make a
   // good decision.
-  int64_t redSize = captures.reductionOpSizes.back();
   if (ShapedType::isDynamic(redSize))
-    return ReductionConfig{maxNumThreads, vectorSize};
+    return ReductionConfig{maxNumThreads, vectorSize,
+                           ReductionStrategy::Staged};
   // Scale down to smaller sizes (4, 8, 16)-warps.
   if (scaleUpByBitWidth(redSize, bitWidth) <= 4 * kCudaWarpSize) {
     vectorSize = scaleUpByBitWidth(1, bitWidth);

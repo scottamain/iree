@@ -145,8 +145,8 @@ you only need Tracy to see into the IREE runtime, leaving IREE CPU codegen
 modules opaque.
 
 For tracing the compiler, additionally set `IREE_ENABLE_COMPILER_TRACING` to
-`ON`. Compiler tracing is less stable, particularly on Linux with MLIR threading
-enabled (https://github.com/iree-org/iree/issues/6404).
+`ON`. Compiler tracing is less stable, particularly when using sampling
+(running with elevated permissions).
 
 Once done configuring CMake, proceed to rebuild, e.g.
 
@@ -177,9 +177,9 @@ Example:
 TRACY_NO_EXIT=1 IREE_PRESERVE_DYLIB_TEMP_FILES=1 \
   /data/local/tmp/iree-benchmark-module \
     --driver=local-task \
-    --module_file=/data/local/tmp/android_module.fbvm \
-    --entry_function=serving_default \
-    --function_input=1x384xi32
+    --module=/data/local/tmp/android_module.fbvm \
+    --function=serving_default \
+    --input=1x384xi32
 ```
 
 Explanation:
@@ -240,6 +240,25 @@ user and it's best to stick to this for the sake of realistic benchmarks.
 Internally, Tracy executes `su` commands to perform certain actions, so it too
 relies on the device being *rooted* without relying on the benchmark process
 being run as root.
+
+## "RESOURCE_EXHAUSTED; failed to open file" issue
+
+This is a
+[known issue with how tracy operates](https://github.com/wolfpld/tracy/issues/512).
+One way to workaround it is to manually increase the total number of files
+that can be kept opened simultanously and run the benchmark command with that
+setting:
+```
+sudo sh -c "ulimit -n <bigNum> && <myTracyInstrumentedProgram>"
+```
+
+**Explanation:**
+
+Tracy keeps a number of file descriptors open that, depending on the machine and
+its settings, may exceed the limit allowed by the system resulting in `iree`
+to fail to open more files.
+In particular, it is commom to have a relatively low limit when running
+with `sudo`.
 
 ## Running the Tracy Capture CLI, connecting and saving profiles
 

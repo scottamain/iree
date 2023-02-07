@@ -14,7 +14,6 @@ include "iree/compiler/Dialect/Util/IR/UtilTypes.td"
 include "mlir/IR/AttrTypeBase.td"
 include "mlir/IR/BuiltinAttributeInterfaces.td"
 include "mlir/IR/EnumAttr.td"
-include "mlir/IR/SubElementInterfaces.td"
 
 //===----------------------------------------------------------------------===//
 // IREE stream modeling dialect
@@ -108,6 +107,7 @@ def Stream_Dialect : Dialect {
 
   let useDefaultTypePrinterParser = 1;
   let useDefaultAttributePrinterParser = 1;
+  let useFoldAPI = kEmitFoldAdaptorFolder;
 }
 
 //===----------------------------------------------------------------------===//
@@ -249,9 +249,7 @@ def Stream_FavorAttr :
 }
 
 def Stream_PartitioningConfigAttr :
-    AttrDef<Stream_Dialect, "PartitioningConfig", [
-      SubElementAttrInterface,
-    ]> {
+    AttrDef<Stream_Dialect, "PartitioningConfig"> {
   let mnemonic = "partitioning_config";
   let summary = [{defines partitioning configuration}];
   let description = [{

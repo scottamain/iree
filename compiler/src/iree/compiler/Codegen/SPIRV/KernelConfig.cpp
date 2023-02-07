@@ -222,8 +222,8 @@ LogicalResult setConvOpConfig(linalg::LinalgOp linalgOp,
     // and width.
     const bool tileToSquare = tileConvSquare(
         oh, ow, residualThreads, residualTilingFactor,
-        llvm::makeMutableArrayRef(workgroupSize).drop_front(),
-        llvm::makeMutableArrayRef(workgroupTileSizes).drop_front().drop_back());
+        llvm::MutableArrayRef(workgroupSize).drop_front(),
+        llvm::MutableArrayRef(workgroupTileSizes).drop_front().drop_back());
 
     // Otherwise treat OW and OH separately to allow them to have different
     // number of threads and tiling size.
@@ -1432,8 +1432,8 @@ LogicalResult initSPIRVLaunchConfig(ModuleOp module) {
     }
 
     if (computeOps.empty()) {
-      return funcOp.emitOpError(
-          "unhandled translation of function without compute ops");
+      // No compute operations found. Allow to pass through without a config.
+      continue;
     }
 
     Operation *rootOperation = nullptr;

@@ -10,7 +10,7 @@
 #include "iree/base/api.h"
 #include "iree/base/internal/cpu.h"
 #include "iree/base/internal/flags.h"
-#include "iree/builtins/ukernel/pack.h"
+#include "iree/builtins/ukernel/api.h"
 #include "iree/builtins/ukernel/tools/ukernel_test_utils.h"
 #include "iree/testing/benchmark.h"
 
@@ -126,8 +126,8 @@ static iree_status_t iree_pack_benchmark(
   iree_uk_test_write_random_buffer(in_buffer, in_buffer_size, in_type, engine);
   iree_uk_test_write_random_buffer(out_buffer, out_buffer_size, out_type,
                                    engine);
-  iree_uk_test_write_random_buffer(padding_value_buffer, out_type_size,
-                                   out_type, engine);
+  // Test single-byte padding pattern, most common use case as 0.0f is 0 bytes.
+  memset(padding_value_buffer, 0, out_type_size);
   iree_uk_test_random_engine_destroy(engine);
   params.in_buffer = in_buffer;
   params.out_buffer = out_buffer;
@@ -139,12 +139,7 @@ static iree_status_t iree_pack_benchmark(
   while (iree_benchmark_keep_running(benchmark_state,
                                      /*batch_count=*/batch_count)) {
     for (int i = 0; i < batch_count; ++i) {
-      iree_uk_status_t status = iree_uk_pack(&params);
-      if (status != iree_uk_status_ok) {
-        fprintf(stderr, "FATAL: iree_uk_pack failed: %s\n",
-                iree_uk_status_message(status));
-        iree_abort();
-      }
+      iree_uk_pack(&params);
     }
     total_iterations += batch_count;
   }

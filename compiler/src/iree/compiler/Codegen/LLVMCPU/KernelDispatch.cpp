@@ -816,7 +816,7 @@ static LogicalResult setAArch64RootConfig(func::FuncOp entryPointFn,
 
   return setOpConfigAndEntryPointFnTranslation(
       entryPointFn, op, tileSizes,
-      DispatchLoweringPassPipeline::CPUAArchDoubleTilingExpert);
+      DispatchLoweringPassPipeline::Mmt4dTilingExpert);
 }
 
 /// Returns default hard-coded workgroup sizes for a give target. No smartness
@@ -913,6 +913,20 @@ static LogicalResult setRootConfig(
 
   SmallVector<int64_t> workgroupTileSizes =
       getMatmulWorkgroupSizes(entryPointFn, linalgOp, vectorSize, isQuantized);
+  if (isQuantized) {
+    /// This check should be happening in general, but this is trying to fix a
+    /// stack allocation issue on quantized models (#11880). Similar issue must
+    /// happen with floats too. For whatever reason float benchmark have
+    /// regressions with this. For now this is done for quantized models
+    /// and a proper fix is to either pre-pack so problem size is always a
+    /// multiple of the vector size, or use masking.
+    for (auto [index, shape] : llvm::enumerate(linalgOp.getStaticShape())) {
+      if (index >= workgroupTileSizes.size()) break;
+      if (shape == ShapedType::kDynamic) continue;
+      workgroupTileSizes[index] =
+          getMaxTileSize(0, shape, workgroupTileSizes[index], vectorSize);
+    }
+  }
 
   auto targetAttr = IREE::HAL::ExecutableTargetAttr::lookup(entryPointFn);
 
@@ -1034,7 +1048,7 @@ static LogicalResult setRootConfig(func::FuncOp entryPointFn,
 
   return setOpConfigAndEntryPointFnTranslation(
       entryPointFn, mmt4dOp, tileSizes,
-      DispatchLoweringPassPipeline::CPUAArchDoubleTilingExpert);
+      DispatchLoweringPassPipeline::Mmt4dTilingExpert);
 }
 
 static SmallVector<int64_t> getLinalgExtDefaultWorkgroupTileSizes(

@@ -152,8 +152,18 @@ static SmallVector<int64_t> getVectorSizes(
     return {};
   }
 
-  // TODO: Masking is only supported for dynamic shapes.
-  if (!linalgOp.hasDynamicShape()) {
+  // TODO: Support masking for static shapes.
+  if (llvm::any_of(linalgOp.getStaticLoopRanges(), [](int64_t dimSize) {
+        return !ShapedType::isDynamicShape(dimSize) && dimSize != 1;
+      })) {
+    return {};
+  }
+
+  // TODO: Support masking for reduction.
+  if (llvm::any_of(linalgOp.getIteratorTypesArray(),
+                   [](utils::IteratorType iter) {
+                     return !linalg::isParallelIterator(iter);
+                   })) {
     return {};
   }
 
@@ -431,14 +441,14 @@ void LinalgFusePass::runOnOperation() {
     derivedTileInterchange = llvm::to_vector(tileInterchange);
   }
 
-  scf::SCFTileAndFuseOptions tileAndFuseOptions;
+  scf::SCFTilingOptions tileAndFuseOptions;
   scf::SCFTilingOptions tilingOptions;
   auto anyNonZeroSizes = [](ArrayRef<int64_t> sizes) {
     return llvm::any_of(sizes, [](int64_t size) { return size > 0; });
   };
   bool doTileAndFuse = anyNonZeroSizes(derivedTileAndFuseSizes);
   if (doTileAndFuse) {
-    tileAndFuseOptions.tilingOptions
+    tileAndFuseOptions
         .setTileSizeComputationFunction(
             [derivedTileAndFuseSizes](OpBuilder &b, Operation *op) {
               return buildTileSizesForOp(b, op, derivedTileAndFuseSizes);

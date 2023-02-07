@@ -40,7 +40,7 @@ llvm::cl::opt<std::string> clGPUCodegenTransformDialectFileName(
 llvm::cl::opt<bool> clGPUEnableTransformDialectJit(
     "iree-codegen-llvmgpu-enable-transform-dialect-jit",
     llvm::cl::desc("enable the usage of the transform dialect JIT"),
-    llvm::cl::init(false));
+    llvm::cl::init(true));
 
 llvm::cl::opt<std::string> clGPUCodegenTransformDialectDebugPayloadTag(
     "iree-codegen-llvmgpu-transform-dialect-debug-payload-tag",
@@ -819,8 +819,8 @@ static LogicalResult setConvolutionConfig(linalg::LinalgOp linalgOp,
     // and width.
     const bool tileToSquare = distributeToSquare(
         oh, ow, residualThreads, residualTilingFactor,
-        llvm::makeMutableArrayRef(workgroupSize).drop_front(),
-        llvm::makeMutableArrayRef(workgroupTileSizes).drop_front().drop_back());
+        llvm::MutableArrayRef(workgroupSize).drop_front(),
+        llvm::MutableArrayRef(workgroupTileSizes).drop_front().drop_back());
 
     // Otherwise treat OW and OH separately to allow them to have different
     // number of threads and tiling size.
@@ -945,12 +945,8 @@ LogicalResult initGPULaunchConfig(ModuleOp moduleOp) {
     }
 
     if (!rootOperation) {
-      // setTranslationInfo(
-      //    funcOp,
-      //    IREE::Codegen::DispatchLoweringPassPipeline::LLVMGPUDistribute,
-      //    {1, 1, 1});
-      // continue;
-      return funcOp.emitOpError("unable to find root operation");
+      // No root operation found. Allow it to pass through without a config.
+      continue;
     }
 
     if (failed(setRootConfig(funcOp, rootOperation))) continue;

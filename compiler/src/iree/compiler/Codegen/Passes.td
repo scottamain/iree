@@ -86,6 +86,12 @@ def EliminateEmptyTensors :
   let constructor = "mlir::iree_compiler::createEliminateEmptyTensorsPass()";
 }
 
+def HoistStaticallyBoundAllocations :
+    Pass<"iree-hoist-statically-bound-allocations", "func::FuncOp"> {
+  let summary = "Hoist statically bound alloca ops to the entry block of functions";
+  let constructor = "mlir::iree_compiler::createHoistStaticallyBoundAllocationsPass()";
+}
+
 def IREEComprehensiveBufferize :
     Pass<"iree-codegen-iree-comprehensive-bufferize", "ModuleOp"> {
   let summary = "Convert from to Linalg ops on tensors to buffers";
@@ -165,6 +171,14 @@ def TensorToVectorVectorizePad :
                 "control flows";
   let constructor =
       "mlir::iree_compiler::createVectorizePadPass()";
+}
+
+def VectorizePackUnPackOps :
+    Pass<"iree-codegen-vectorize-pack-unpack-ops", "func::FuncOp"> {
+  let summary = "Vectorize a very specific form of tensor.pad with "
+                "control flows";
+  let constructor =
+      "mlir::iree_compiler::createVectorizePackUnPackOpsPass()";
 }
 
 def PolynomialApproximationPass :
@@ -306,8 +320,7 @@ def EraseHALDescriptorTypeFromMemRef :
 
 def RematerializeParallelOps :
     Pass<"iree-codegen-rematerialize-parallel-ops", "func::FuncOp"> {
-  let summary = "Pass to rematerialize and merge parallel ops to avoid"
-                "creating temporary allocs.";
+  let summary = "Pass to rematerialize and merge parallel ops to avoid creating temporary allocs.";
   let constructor = "mlir::iree_compiler::createRematerializeParallelOpsPass()";
 }
 
@@ -367,11 +380,11 @@ def LLVMCPUSynchronizeSymbolVisibility :
   let constructor = "mlir::iree_compiler::createLLVMCPUSynchronizeSymbolVisibilityPass()";
 }
 
-def LLVMCPUAArch64VectorLowering
-    : Pass<"iree-llvmcpu-aarch64-vector-lowering", "func::FuncOp"> {
+def LLVMCPUMmt4dVectorLowering
+    : Pass<"iree-llvmcpu-mmt4d-vector-lowering", "func::FuncOp"> {
   let summary = "Apply vector lowering logic to vector ops";
   let constructor =
-      "mlir::iree_compiler::createLLVMCPUAArch64VectorLoweringPass()";
+      "mlir::iree_compiler::createLLVMCPUMmt4dVectorLoweringPass()";
 }
 
 def LLVMCPUUnfuseFMAOps :
