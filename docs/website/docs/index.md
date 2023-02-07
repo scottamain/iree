@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # IREE
 
 IREE (**I**ntermediate **R**epresentation **E**xecution **E**nvironment[^1]) is

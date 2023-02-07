@@ -32,6 +32,7 @@ theme:
     - content.code.copy    # Button to copy code snippets
     - content.action.edit  # Button to edit doc source
     - navigation.tabs      # Header tabs for nav items
+    - navigation.sections  # Show nav sub-sections (not under zippies)
     - navigation.top       # "Back to top" button
     - navigation.instant   # Ajax-style dynamic loading
     - navigation.tracking  # Update URL in address bar with the active anchor
@@ -84,39 +85,39 @@ markdown_extensions:
 # Note: may include external links and titles are optional for internal links
 nav:
   - Home: "index.md"
-  - "Getting Started":
-      - "getting-started/index.md"
+  - Get Started:
+      - Overview: "getting-started/index.md"
       - TensorFlow: "getting-started/tensorflow.md"
       - TensorFlow Lite: "getting-started/tflite.md"
       - JAX: "getting-started/jax.md"
       - PyTorch: "getting-started/pytorch.md"
-  - "Deployment configurations":
-      - "deployment-configurations/index.md"
-      - CPU: "deployment-configurations/cpu.md"
-      - CPU - Bare-Metal: "deployment-configurations/bare-metal.md"
-      - GPU - Vulkan: "deployment-configurations/gpu-vulkan.md"
-      - GPU - CUDA/ROCm: "deployment-configurations/gpu-cuda-rocm.md"
-  - "Building from source":
-      - "building-from-source/index.md"
-      - "building-from-source/getting-started.md"
-      - "building-from-source/python-bindings-and-importers.md"
-      - "building-from-source/android.md"
-      - "building-from-source/ios.md"
-      - "building-from-source/riscv.md"
-  - "Bindings":
-      - "bindings/index.md"
+      - Deployment configurations:
+          - Overview: "deployment-configurations/index.md"
+          - CPU: "deployment-configurations/cpu.md"
+          - CPU - Bare-Metal: "deployment-configurations/bare-metal.md"
+          - GPU - Vulkan: "deployment-configurations/gpu-vulkan.md"
+          - GPU - CUDA/ROCm: "deployment-configurations/gpu-cuda-rocm.md"
+      - Tools:
+          - Optimization Options: "reference/optimization-options.md"
+  - API Bindings:
+      - Overview: "bindings/index.md"
       - C API: "bindings/c-api.md"
       - Python: "bindings/python.md"
       - TensorFlow Lite: "bindings/tensorflow-lite.md"
-  - "Extensions":
-      - "extensions/index.md"
-  - "Blog":
+  - Developer guides:
+      - Build from source:
+          - "building-from-source/index.md"
+          - "building-from-source/getting-started.md"
+          - "building-from-source/python-bindings-and-importers.md"
+          - "building-from-source/android.md"
+          - "building-from-source/ios.md"
+          - "building-from-source/riscv.md"
+      - Build an extension:
+          - "extensions/index.md"
+  - Blog:
       - "blog/index.md"
       - CUDA backend: "blog/2021-10-15-cuda-backend.md"
       - Work in progress on Matrix Multiplication on CPU: "blog/2021-10-13-mmt4d.md"
       - TFLite Support via TOSA: "blog/2021-07-19-tflite-tosa.md"
-  - "Reference":
-      - Glossary: "reference/glossary.md"
-      - Optimization Options: "reference/optimization-options.md"
   - "Community":
       - "community/index.md"

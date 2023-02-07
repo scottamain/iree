@@ -8,14 +8,35 @@ The website is generated using [MkDocs](https://www.mkdocs.org/), with the
 
 ## How to edit this documentation
 
-Follow https://squidfunk.github.io/mkdocs-material/getting-started/ and read
-https://www.mkdocs.org/.
+It's easy to preview the rendered docs locally:
 
-Develop (from this folder):
+1. Start a Python virtual environment (optional but recommended):
 
-```shell
-mkdocs serve
-```
+    ```bash
+    python3 -m venv ~/.venvs/mkdocs
+
+    source ~/.venvs/mkdocs/bin/activate
+    ```
+
+2. Navigate to the `iree/docs/website` directory, and then
+   install Material for MkDocs and other packages:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3. Now start the local server:
+
+    ```bash
+    mkdocs serve
+    ```
+
+4. Open a browser to http://localhost:8000/.
+
+That's it. The web pages automatically reload while you edit the markdown.
+
+For more details, see https://squidfunk.github.io/mkdocs-material/getting-started/
+and https://www.mkdocs.org/.
 
 Deploy:
 
