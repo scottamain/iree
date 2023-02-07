@@ -1,147 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://iree-org.github.io/iree/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/bindings/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/bindings/c-api/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/bindings/python/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/bindings/tensorflow-lite/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/blog/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/blog/2021-07-19-tflite-tosa/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/blog/2021-10-13-mmt4d/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/blog/2021-10-15-cuda-backend/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/android/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/getting-started/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/ios/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/python-bindings-and-importers/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/building-from-source/riscv/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/community/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/deployment-configurations/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/deployment-configurations/bare-metal/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/deployment-configurations/cpu/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/deployment-configurations/gpu-cuda-rocm/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/deployment-configurations/gpu-vulkan/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/extensions/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/getting-started/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/getting-started/jax/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/getting-started/pytorch/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/getting-started/tensorflow/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/getting-started/tflite/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/reference/glossary/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://iree-org.github.io/iree/reference/optimization-options/</loc>
+         <loc>None</loc>
          <lastmod>2023-02-07</lastmod>
          <changefreq>daily</changefreq>
     </url>
