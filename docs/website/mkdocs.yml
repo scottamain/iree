@@ -1,11 +1,8 @@
 site_name: IREE
-site_url: https://iree-org.github.io/iree/
 logo_link_name: OpenXLA Project
 repo_url: https://github.com/iree-org/iree
 repo_name: openxla/iree
 edit_uri: edit/main/docs/
-extra:
-  homepage: https://scottamain.github.io/community
 
 theme:
   name: material
@@ -40,6 +37,7 @@ theme:
   custom_dir: overrides
 
 extra:
+  homepage: https://scottamain.github.io/community
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/iree-org/iree
